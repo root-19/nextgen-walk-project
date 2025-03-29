@@ -5,15 +5,15 @@ require("dotenv").config();
 
 // Register a new user
 exports.register = (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, gender, email, password } = req.body;
 
     // Hash the password
     bcrypt.hash(password, 10, (err, hash) => {
         if (err) return res.status(500).json({ message: "Error hashing password" });
 
         // Insert user with default role = 'user'
-        const sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'user')";
-        db.query(sql, [username, email, hash], (err, result) => {
+        const sql = "INSERT INTO users (username, gender, email, password, role) VALUES (?, ?, ?, ?, 'user')";
+        db.query(sql, [username, gender, email, hash], (err, result) => {
             if (err) return res.status(500).json({ message: "Registration failed", error: err });
             res.status(201).json({ message: "User registered successfully" });
         });
