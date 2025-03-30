@@ -10,6 +10,37 @@ export default function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log("🔑 Login Success! Token:", data.token);
+  
+        // Store the token in localStorage
+        localStorage.setItem("token", data.token);
+  
+        // Redirect based on user role
+        if (data.role === "admin") {
+          navigate("/admin/AdminDashboard");
+        } else {
+          navigate("/user/UserDashboard");
+        }
+      } else {
+        alert(data.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 bg-gradient-to-r from-green-200 to-green-500">
       <motion.div 
@@ -20,7 +51,7 @@ export default function Login() {
       >
         <h2 className="text-4xl font-bold text-gray-900 text-center">Login</h2>
         
-        <motion.div className="mt-6 space-y-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+        <motion.form onSubmit={handleSubmit} className="mt-6 space-y-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
           {/* Email Input */}
           <motion.input 
             whileFocus={{ scale: 1.02 }}
@@ -45,9 +76,10 @@ export default function Login() {
 
           {/* Login Button */}
           <motion.button 
+            type="submit"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-           className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-md transition-transform"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-md transition-transform"
           >
             Login
           </motion.button>
@@ -63,7 +95,7 @@ export default function Login() {
               Register
             </motion.span>
           </p>
-        </motion.div>
+        </motion.form>
       </motion.div>
     </div>
   );

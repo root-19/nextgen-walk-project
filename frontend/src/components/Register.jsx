@@ -9,11 +9,33 @@ export default function Register() {
     email: "", 
     password: "" 
   });
-
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+      alert("Registration successful! Please login.");
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -25,9 +47,8 @@ export default function Register() {
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-4xl font-bold text-gray-900 text-center">Register</h2>
-        
-        <motion.div className="mt-6 space-y-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          {/* Username Input */}
+        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+        <motion.form className="mt-6 space-y-5" onSubmit={handleSubmit}>
           <motion.input 
             whileFocus={{ scale: 1.02 }}
             type="text" 
@@ -36,13 +57,13 @@ export default function Register() {
             value={formData.username} 
             onChange={handleChange} 
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 shadow-sm"
+            required
           />
 
-          {/* Gender Selection */}
           <div className="flex flex-col space-y-2">
             <span className="text-gray-700 text-sm font-medium">Select Gender:</span>
             <div className="flex gap-4 justify-center">
-              {['women', 'men'].map((gender) => (
+              {["women", "men"].map((gender) => (
                 <motion.label 
                   key={gender}
                   whileTap={{ scale: 0.95 }}
@@ -62,7 +83,6 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Email Input */}
           <motion.input 
             whileFocus={{ scale: 1.02 }}
             type="email" 
@@ -71,9 +91,9 @@ export default function Register() {
             value={formData.email} 
             onChange={handleChange} 
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 shadow-sm"
+            required
           />
           
-          {/* Password Input */}
           <motion.input 
             whileFocus={{ scale: 1.02 }}
             type="password" 
@@ -82,20 +102,20 @@ export default function Register() {
             value={formData.password} 
             onChange={handleChange} 
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 shadow-sm"
+            required
           />
 
-          {/* Register Button */}
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-md transition-transform"
+            type="submit"
           >
             Register
           </motion.button>
           
-          {/* Login Link */}
           <p className="text-center text-sm text-gray-600">
-            Already have an account?{" "}
+            Already have an account? {" "}
             <motion.span 
               whileHover={{ scale: 1.1 }}
               className="text-green-500 cursor-pointer hover:underline" 
@@ -104,7 +124,7 @@ export default function Register() {
               Login
             </motion.span>
           </p>
-        </motion.div>
+        </motion.form>
       </motion.div>
     </div>
   );

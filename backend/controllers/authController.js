@@ -23,6 +23,7 @@ exports.register = (req, res) => {
 
 
 // User Login
+
 exports.login = (req, res) => {
     const { email, password } = req.body;
 
@@ -34,14 +35,22 @@ exports.login = (req, res) => {
 
         const user = results[0];
 
-        // Compare hashed password
         bcrypt.compare(password, user.password, (err, isMatch) => {
             if (err || !isMatch) return res.status(401).json({ message: "Invalid email or password" });
 
             // Generate JWT token
-            const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
+            const token = jwt.sign(
+                { id: user.id, role: user.role }, 
+                process.env.JWT_SECRET, 
+                { expiresIn: "1h" }
+            );
 
-            res.json({ message: "Login successful", token, role: user.role });
+            console.log("✅ Generated Token:", token);
+            res.json({ 
+                message: "Login successful", 
+                token, 
+                role: user.role  
+            });
         });
     });
 };
